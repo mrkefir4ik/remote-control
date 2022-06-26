@@ -1,59 +1,67 @@
-import Jimp from 'jimp';
 import { httpServer } from './src/http_server/index';
 import robot from 'robotjs';
-import { WebSocketServer } from 'ws';
+import { WebSocketServer, createWebSocketStream } from 'ws';
+import { drawCircle, drawSquare, drawRectangle } from './src/drawing/index'
 import {
     MOUSE_UP, MOUSE_DOWN, MOUSE_LEFT,
-    MOUSE_RIGHT, MOUSE_POSITION, DRAW_CIRCLE, DRAW_SQUARE, DRAW_RECTANGLE, PRNT_SCRN
+    MOUSE_RIGHT, MOUSE_POSITION, DRAW_CIRCLE,
+    DRAW_SQUARE, DRAW_RECTANGLE, PRNT_SCRN
 } from './src/constants';
+import { mouseUp, mouseDown, mouseLeft, mouseRight, takeScreenshot } from './src/controls';
 
-import { mouseUp, mouseDown, mouseLeft, mouseRight } from './src/controls/index';
+type Coordinates = {
+    x: number;
+    y: number;
+};
 
+const HTTP_PORT: number | string = process.env.HTTP_PORT || 3000;
+const WEB_SOCKET_PORT: number | string = process.env.WSS_PORT || 8181;
 
-const HTTP_PORT = process.env.HTTP_PORT || 3000;;
-const WSS_PORT = process.env.WSS_PORT || 8181;
 
 console.log(`Start static http server on the ${HTTP_PORT} port!`);
 httpServer.listen(HTTP_PORT);
 
-const WSS = new WebSocketServer({ port: WSS_PORT }, () => console.log(`Server started on ${WSS_PORT}`));
+const wss = new WebSocketServer({ port: +WEB_SOCKET_PORT }, () => console.log(`Server started on PORT: ${WEB_SOCKET_PORT}`));
 
-WSS.on('connection', function connection(ws) {
-    ws.on('message', function message(data) {
-        const input = data.toString();
-
+wss.on('connection', function connection(ws) {
+    const duplex = createWebSocketStream(ws, { encoding: 'utf8', decodeStrings: false });
+    duplex.on('data', (chunk) => {
+        const input = chunk.toString();
         const values: number = parseInt(input.match(/\d+/));
-        const { x, y } = robot.getMousePos();
+        const { x, y }: Coordinates = robot.getMousePos()
 
         if (input.includes(MOUSE_UP)) {
-            ws.send(MOUSE_UP)
+            duplex.write(MOUSE_UP)
             mouseUp(values)
         } else if (input.includes(MOUSE_DOWN)) {
-            ws.send(MOUSE_DOWN)
+            duplex.write(MOUSE_DOWN)
             mouseDown(values)
         } else if (input.includes(MOUSE_LEFT)) {
-            ws.send(MOUSE_LEFT)
+            duplex.write(MOUSE_LEFT)
             mouseLeft(values)
         } else if (input.includes(MOUSE_RIGHT)) {
-            ws.send(MOUSE_RIGHT)
+            duplex.write(MOUSE_RIGHT)
             mouseRight(values)
         } else if (input.includes(MOUSE_POSITION)) {
-            ws.send(`${MOUSE_POSITION}, x = ${x} px, y = ${y} px`)
+            duplex.write(`${MOUSE_POSITION} ${x}px,${y}px`)
         } else if (input.includes(DRAW_CIRCLE)) {
-            ws.send(DRAW_CIRCLE)
+            duplex.write(DRAW_CIRCLE);
+            drawCircle(values)
         } else if (input.includes(DRAW_SQUARE)) {
-            ws.send(DRAW_SQUARE)
+            duplex.write(DRAW_SQUARE);
+            drawSquare(values);
         } else if (input.includes(DRAW_RECTANGLE)) {
-            ws.send(DRAW_RECTANGLE)
+            duplex.write(DRAW_RECTANGLE);
+            drawRectangle(input);
         } else if (input.includes(PRNT_SCRN)) {
-            ws.send(PRNT_SCRN)
+            duplex.write(PRNT_SCRN)
+            takeScreenshot(ws)
         } else {
-            console.log('Wrong input. Please try again')
+            console.log('Invalid input. Please, try again.')
         }
     });
-
 });
 
-WSS.on('close', () => {
-    console.log('Socket is closed');
+wss.on('close', () => {
+    console.log('Socket is closed.');
 })
