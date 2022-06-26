@@ -1,13 +1,13 @@
+import 'dotenv/config'
 import { httpServer } from './src/http_server/index';
 import robot from 'robotjs';
 import { WebSocketServer, createWebSocketStream } from 'ws';
-import { drawCircle, drawSquare, drawRectangle } from './src/drawing/index'
 import {
     MOUSE_UP, MOUSE_DOWN, MOUSE_LEFT,
     MOUSE_RIGHT, MOUSE_POSITION, DRAW_CIRCLE,
     DRAW_SQUARE, DRAW_RECTANGLE, PRNT_SCRN
 } from './src/constants';
-import { mouseUp, mouseDown, mouseLeft, mouseRight, takeScreenshot } from './src/controls';
+import { mouseUp, mouseDown, mouseLeft, mouseRight, takeScreenshot, drawCircle, drawSquare, drawRectangle } from './src/controls';
 
 type Coordinates = {
     x: number;

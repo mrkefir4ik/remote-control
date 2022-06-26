@@ -28,6 +28,7 @@ Command | Description
 `npm run start` | App served @ `http://localhost:8181` without nodemon
 
 **Note**: replace `npm` with `yarn` in `package.json` if you use yarn.
-
-
+-----------------------------------------------------------------------------------------
+Run `npm install`
 FOR WINDOWS if you have problems with installind robotjs RUN `npm install -g node-gyp`
+To run server use `npm start`
