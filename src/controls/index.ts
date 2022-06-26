@@ -10,6 +10,7 @@ type Coordinates = {
 export const mouseUp = (num: number): void => {
     const { x, y }: Coordinates = robot.getMousePos();
     robot.moveMouse(x, y - num);
+
 };
 
 export const mouseDown = (num: number): void => {
@@ -31,21 +32,6 @@ export const mouseRight = (num: number): void => {
 //PrintScreen
 export const takeScreenshot = (ws: any): void => {
     const { x, y } = robot.getMousePos();
-
-
-    // var img=robot.screen.capture();
-    // var data=[];
-    // var bitmap=img.image;
-    // var i=0,l=bitmap.length;
-    // for(i=0;i<l;i+=4){
-    //     data.push(bitmap[i+2],bitmap[i+1],bitmap[i],bitmap[i+3]);
-    // }
-    // new Jimp({
-    //     "data":new Uint8Array(data),
-    //     "width":img.width,
-    //     "height":img.height
-    // }
-
 
 
     new Jimp(
